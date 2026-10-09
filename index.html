@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wheee × Woots Crew Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Work+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ink:#000000; --headline:#09263d; --subheadline:#970a44; --paper:#ffffff; --panel:#ffffff; --panel-2:#efefef;
+    --accent:#FFE549; --accent-ink:#3d3200; --accent-2:#EBA040;
+    --maroon:#970a44; --maroon-deep:#720632;
+    --line:#ddd6c2; --muted:#5c6b78; --danger:#b23c22; --ok:#2f7d4f;
+    font-family:"Work Sans", system-ui, sans-serif;
+  }
+  /* Fixed white theme by design — intentionally no automatic dark mode. */
+  *{box-sizing:border-box;}
+  body{background:var(--paper); color:var(--ink); margin:0; padding-inline:16px; padding-block:0 40px;}
+  a{color:var(--maroon);}
+  h1,h2,h3{font-family:"Poppins", sans-serif;}
+
+  header.top{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:14px; padding-block:16px; flex-wrap:wrap;
+    border-bottom:1px solid var(--line); margin-bottom:26px;
+  }
+  .brandmarks{display:flex; align-items:center; gap:10px;}
+  .brandmarks img{height:56px; width:auto; display:block;}
+  .brandmarks .x{color:var(--muted); font-size:15px; font-weight:600;}
+  nav.tabs{display:flex; gap:6px; background:var(--panel-2); padding:4px; border-radius:10px;}
+  nav.tabs button{
+    font-family:"Poppins", sans-serif; font-size:13px; font-weight:700; color:var(--muted);
+    background:none; border:none; border-radius:7px; padding:8px 14px; cursor:pointer;
+  }
+  nav.tabs button.active{background:var(--panel); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12);}
+
+  main{max-width:640px; margin:0 auto;}
+  main.wide{max-width:1000px;}
+
+  .eyebrow{font-size:12px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--maroon);}
+  h1.page-title{font-weight:700; font-size:clamp(24px,5.5vw,30px); line-height:1.15; margin:6px 0 8px; color:var(--headline);}
+  p.lede{margin:0 0 22px; color:var(--muted); font-size:14.5px; line-height:1.55;}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:22px; margin-bottom:18px;}
+  .card h2{font-size:17px; font-weight:700; margin:0 0 4px; color:var(--subheadline);}
+  .card .sub{font-size:12.5px; color:var(--muted); margin:0 0 16px;}
+
+  label{display:block; font-size:12.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; color:var(--muted); margin-bottom:6px;}
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  .hint{font-size:11.5px; color:var(--muted); margin-top:5px;}
+  input[type="text"], input[type="tel"], input[type="email"], input[type="date"], textarea, select{
+    width:100%; font-family:inherit; font-size:15px; color:var(--ink);
+    background:var(--paper); border:1.5px solid var(--line); border-radius:8px;
+    padding:10px 12px; outline:none; transition:border-color .15s ease;
+  }
+  textarea{resize:vertical; min-height:72px;}
+  input:focus, textarea:focus, select:focus{border-color:var(--maroon);}
+  .req{color:var(--accent-2);}
+  .check-grid{display:flex; flex-wrap:wrap; gap:8px;}
+  .check-pill{display:flex; align-items:center; gap:6px; border:1.5px solid var(--line); border-radius:20px; padding:7px 13px; font-size:13.5px; cursor:pointer; user-select:none;}
+  .check-pill input{accent-color:var(--maroon);}
+  .check-pill.checked{border-color:var(--maroon); background:color-mix(in srgb, var(--maroon) 10%, var(--panel));}
+  .err-msg{font-size:12.5px; color:var(--danger); margin-top:6px; display:none;}
+  .field.invalid .err-msg{display:block;}
+  .field.invalid input, .field.invalid select, .field.invalid textarea{border-color:var(--danger);}
+  .other-input{margin-top:8px; display:none;}
+  .other-input.show{display:block;}
+
+  .file-drop{border:1.5px dashed var(--line); border-radius:10px; padding:16px; text-align:center; background:var(--paper);}
+  .file-drop input{display:none;}
+  .file-drop .pick-btn{display:inline-block; font-weight:600; font-size:13px; color:var(--maroon); cursor:pointer;}
+  .file-preview{margin-top:10px; font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:8px; justify-content:center;}
+  .file-preview img{max-height:60px; border-radius:6px; border:1px solid var(--line);}
+  .file-remove{color:var(--danger); font-size:12px; font-weight:600; cursor:pointer; background:none; border:none;}
+
+  table.grid{border-collapse:collapse; width:100%; font-size:13px;}
+  table.grid th, table.grid td{text-align:center; padding:8px 4px; border-bottom:1px solid var(--line);}
+  table.grid th{font-weight:600; color:var(--muted); font-size:11.5px;}
+  table.grid td.rowlabel{text-align:left; font-weight:500; color:var(--ink); padding-right:10px;}
+  table.grid input[type="radio"]{accent-color:var(--maroon); width:16px; height:16px;}
+  .grid-wrap{overflow-x:auto;}
+
+  .agreement-box{max-height:420px; overflow-y:auto; background:var(--panel-2); border:1.5px solid var(--line); border-radius:10px; padding:10px;}
+  .agreement-box canvas{display:block; width:100%; height:auto; margin-bottom:10px; border-radius:4px; box-shadow:0 1px 4px rgba(0,0,0,.15); background:#fff;}
+  .agreement-loading{padding:30px; text-align:center; color:var(--muted); font-size:13.5px;}
+  .ack-list{margin-top:16px; display:flex; flex-direction:column; gap:10px;}
+  .ack-item{display:flex; gap:10px; align-items:flex-start; font-size:13.5px; line-height:1.45;}
+  .ack-item input{margin-top:3px; accent-color:var(--maroon); flex:none;}
+
+  .sign-meta{display:flex; gap:16px; margin-top:18px; flex-wrap:wrap;}
+  .sign-meta .mini{flex:1; min-width:140px;}
+  .sign-meta .mini .val{font-family:"Poppins",sans-serif; font-weight:600; font-size:14px; padding:8px 0; border-bottom:1.5px solid var(--line);}
+  .sig-head{display:flex; align-items:baseline; justify-content:space-between; margin-top:18px;}
+  .sig-wrap{position:relative; border:1.5px dashed var(--line); border-radius:10px; overflow:hidden; background:#fff;}
+  canvas.pad{display:block; width:100%; height:170px; touch-action:none; cursor:crosshair;}
+  .sig-baseline{position:absolute; left:14px; right:14px; bottom:32px; border-bottom:1.5px solid var(--line); pointer-events:none;}
+  .sig-hint{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#9aa; font-size:13px; pointer-events:none; transition:opacity .15s ease;}
+  .clear-btn{background:none; border:none; color:var(--muted); font-size:12.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase; cursor:pointer; padding:4px 2px;}
+  .clear-btn:hover{color:var(--ink);}
+
+  button.primary{font-family:"Poppins",sans-serif; font-size:15px; font-weight:700; color:var(--accent-ink); background:var(--accent); border:none; border-radius:10px; padding:14px 18px; cursor:pointer; width:100%; margin-top:20px;}
+  button.primary:disabled{opacity:.45; cursor:not-allowed;}
+  button.ghost{font-family:inherit; font-size:13.5px; font-weight:600; color:var(--ink); background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:9px 14px; cursor:pointer;}
+  button.small{font-size:12.5px; padding:6px 10px; border-radius:7px;}
+  button.danger-ghost{color:var(--danger); border-color:color-mix(in srgb, var(--danger) 40%, var(--line));}
+  a.linkout{display:block; text-align:center; text-decoration:none; font-weight:700; color:var(--accent-ink); background:var(--accent); border-radius:10px; padding:14px 18px;}
+
+  .status{font-size:13.5px; line-height:1.5; display:none; padding:12px 14px; border-radius:10px; border:1px solid var(--line); margin-top:14px;}
+  .status.show{display:block;}
+  .status.ok{color:var(--ok); border-color:color-mix(in srgb, var(--ok) 40%, var(--line));}
+  .status.err{color:var(--danger); border-color:color-mix(in srgb, var(--danger) 40%, var(--line));}
+  .status.info{color:var(--muted); border-color:var(--line);}
+
+  .success-panel{text-align:center; padding:34px 20px;}
+  .success-panel .mark{font-size:34px; margin-bottom:10px;}
+
+  .gate{max-width:340px; margin:60px auto; text-align:center;}
+  .gate input{margin-bottom:10px;}
+
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;}
+  .toolbar input[type="text"]{max-width:260px;}
+  .count-pill{font-size:12px; color:var(--muted); background:var(--panel-2); border-radius:20px; padding:5px 12px;}
+  .table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px;}
+  table{border-collapse:collapse; width:100%; font-size:13.5px;}
+  th, td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); white-space:nowrap;}
+  th{background:var(--panel-2); font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted);}
+  tr:last-child td{border-bottom:none;}
+  td.name{font-weight:600;}
+  .empty-note{color:var(--muted); font-size:13.5px; padding:30px; text-align:center;}
+
+  .section-heading{font-family:"Poppins",sans-serif; font-weight:700; font-size:19px; margin:26px 0 10px; color:var(--subheadline);}
+  .section-heading:first-child{margin-top:0;}
+
+  .field-card{border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:12px; background:var(--paper);}
+  .field-card-row{display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
+  .field-card-row > div{flex:1; min-width:140px;}
+  .field-card-actions{display:flex; gap:6px; justify-content:space-between; align-items:center; margin-top:10px;}
+  .field-card-actions .left{display:flex; gap:6px;}
+  .req-toggle{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); font-weight:600;}
+  .req-toggle input{accent-color:var(--maroon);}
+  .ack-edit-row{display:flex; gap:8px; align-items:flex-start; margin-bottom:8px;}
+  .ack-edit-row textarea{flex:1; min-height:44px;}
+
+  footer.foot{text-align:center; font-size:12px; color:var(--muted); margin-top:30px;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brandmarks">
+    <img src="wheee-logo.png" alt="Wheee">
+    <span class="x">×</span>
+    <img src="woots-logo.png" alt="Woots Event">
+  </div>
+  <nav class="tabs">
+    <button id="tabSignBtn" class="active" data-tab="sign">Sign</button>
+    <button id="tabDataBtn" data-tab="data">Data</button>
+    <button id="tabEditBtn" data-tab="edit">Edit form</button>
+  </nav>
+</header>
+
+<main id="app"></main>
+
+<footer class="foot">Wheee Sdn. Bhd. &amp; Woots Events — crew registration form</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script>
+(function(){
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbyw6xulVht_jygeI2cDPET8qQKG0OZ9YYBGKzVA3JvPxoLaL3cRYcC_y7b4ehA5M-B-/exec";
+  var SHEET_URL = "https://docs.google.com/spreadsheets/d/1FKmrBxaeG1pVGVciCEAb-vYVK2Kak0XqCDijSzHyhIA/edit?gid=0#gid=0";
+  var AGREEMENT_PDF_URL = "crew-agreement.pdf";
+  var ADMIN_KEY_STORAGE = "wheeeCrewAdminKey";
+  var MAX_FILE_MB = 8;
+
+  // Exact coordinates (PDF points, bottom-left origin) of the blank space
+  // after "Signature:", "Full Name:" and "Date:" on the agreement's last page.
+  var SIG_PLACEMENT = {
+    signature: { x: 165, y: 524, width: 150, height: 26 },
+    fullName:  { x: 165, y: 500, size: 11 },
+    date:      { x: 165, y: 472, size: 11 }
+  };
+
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+
+  var app = document.getElementById('app');
+  var main = document.querySelector('main');
+  var tabButtons = document.querySelectorAll('nav.tabs button');
+  var state = { tab: 'sign', config: null, rows: null };
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function getAdminKey(){ try { return localStorage.getItem(ADMIN_KEY_STORAGE) || ''; } catch(e){ return ''; } }
+  function setAdminKey(v){ try { localStorage.setItem(ADMIN_KEY_STORAGE, v); } catch(e){} }
+
+  function api(params){
+    var url = ENDPOINT + '?' + Object.keys(params).map(function(k){
+      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }).join('&');
+    return fetch(url).then(function(r){ return r.json(); });
+  }
+  function apiPost(body){
+    return fetch(ENDPOINT, { method: 'POST', body: JSON.stringify(body) }).then(function(r){ return r.json(); });
+  }
+
+  function switchTab(tab){
+    state.tab = tab;
+    tabButtons.forEach(function(b){ b.classList.toggle('active', b.dataset.tab === tab); });
+    render();
+  }
+  tabButtons.forEach(function(b){ b.addEventListener('click', function(){ switchTab(b.dataset.tab); }); });
+
+  function loadConfig(){ return api({ action: 'config' }).then(function(cfg){ state.config = cfg; }); }
+
+  // ================= FILE HELPERS =================
+  function readFileAsDataUrl(file){
+    return new Promise(function(resolve, reject){
+      var r = new FileReader();
+      r.onload = function(){ resolve(r.result); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+  // Downscales an image file to keep uploads small; passes PDFs through untouched.
+  function compressIfImage(file){
+    if (!/^image\//.test(file.type)) return readFileAsDataUrl(file);
+    return readFileAsDataUrl(file).then(function(dataUrl){
+      return new Promise(function(resolve){
+        var img = new Image();
+        img.onload = function(){
+          var maxDim = 1600;
+          var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+          var c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = function(){ resolve(dataUrl); };
+        img.src = dataUrl;
+      });
+    });
+  }
+
+  // ================= SIGN VIEW =================
+  function groupBySection(fields){
+    var groups = [], last = null;
+    (fields || []).forEach(function(f){
+      var sec = f.section || '';
+      if (!last || last.section !== sec){ last = { section: sec, fields: [] }; groups.push(last); }
+      last.fields.push(f);
+    });
+    return groups;
+  }
+
+  function hasOther(f){ return (f.options || []).some(function(o){ return o.trim().toLowerCase() === 'other'; }); }
+
+  function fieldInputHtml(f){
+    var reqStar = f.required ? ' <span class="req">*</span>' : '';
+
+    if (f.type === 'textarea'){
+      return '<label for="f_'+f.id+'">'+esc(f.label)+reqStar+'</label><textarea id="f_'+f.id+'" data-field="'+f.id+'"></textarea><div class="err-msg">Please fill this in.</div>';
+    }
+
+    if (f.type === 'file'){
+      var accept = f.accept || (f.id === 'profilePhoto' ? 'image/*' : 'image/*,application/pdf');
+      return '<label>'+esc(f.label)+reqStar+'</label>' +
+        '<div class="file-drop" data-file-wrap="'+f.id+'">' +
+          '<input type="file" id="f_'+f.id+'" data-field="'+f.id+'" accept="'+accept+'">' +
+          '<label class="pick-btn" for="f_'+f.id+'">Choose file…</label>' +
+          '<div class="file-preview" id="preview_'+f.id+'" style="display:none;"></div>' +
+        '</div>' +
+        '<div class="hint">Max '+MAX_FILE_MB+'MB. Photos are auto-resized.</div>' +
+        '<div class="err-msg">Please attach a file.</div>';
+    }
+
+    if (f.type === 'select'){
+      var opts = '<option value="">Choose…</option>' + (f.options||[]).map(function(o){ return '<option value="'+esc(o)+'">'+esc(o)+'</option>'; }).join('');
+      var other = hasOther(f) ? '<input type="text" class="other-input" id="f_'+f.id+'_other" placeholder="Please specify">' : '';
+      return '<label for="f_'+f.id+'">'+esc(f.label)+reqStar+'</label><select id="f_'+f.id+'" data-field="'+f.id+'">'+opts+'</select>'+other+'<div class="err-msg">Please make a selection.</div>';
+    }
+
+    if (f.type === 'radio'){
+      var pills = (f.options||[]).map(function(o){
+        return '<label class="check-pill" data-pill><input type="radio" name="r_'+f.id+'" value="'+esc(o)+'" data-radio="'+f.id+'"> '+esc(o)+'</label>';
+      }).join('');
+      var otherR = hasOther(f) ? '<input type="text" class="other-input" id="f_'+f.id+'_other" placeholder="Please specify">' : '';
+      return '<label>'+esc(f.label)+reqStar+'</label><div class="check-grid">'+pills+'</div>'+otherR+'<div class="err-msg">Please choose one option.</div>';
+    }
+
+    if (f.type === 'multiselect'){
+      var mpills = (f.options||[]).map(function(o){
+        return '<label class="check-pill" data-pill><input type="checkbox" value="'+esc(o)+'" data-multi="'+f.id+'"> '+esc(o)+'</label>';
+      }).join('');
+      var otherM = hasOther(f) ? '<input type="text" class="other-input" id="f_'+f.id+'_other" placeholder="Please specify">' : '';
+      return '<label>'+esc(f.label)+reqStar+'</label><div class="check-grid">'+mpills+'</div>'+otherM+'<div class="err-msg">Please choose at least one.</div>';
+    }
+
+    if (f.type === 'ranking_grid'){
+      var cols = f.columns || [];
+      var head = '<tr><th></th>' + cols.map(function(c){ return '<th>'+esc(c)+'</th>'; }).join('') + '</tr>';
+      var body = (f.rows||[]).map(function(row, ri){
+        var cells = cols.map(function(c){
+          return '<td><input type="radio" name="grid_'+f.id+'_'+ri+'" value="'+esc(c)+'" data-grid="'+f.id+'" data-row="'+esc(row)+'"></td>';
+        }).join('');
+        return '<tr><td class="rowlabel">'+esc(row)+'</td>'+cells+'</tr>';
+      }).join('');
+      return '<label>'+esc(f.label)+reqStar+'</label><div class="grid-wrap"><table class="grid">'+head+body+'</table></div><div class="err-msg">Please answer every row.</div>';
+    }
+
+    var type = f.type === 'tel' ? 'tel' : (f.type === 'email' ? 'email' : 'text');
+    var placeholder = f.type === 'tel' ? ' placeholder="+60 12-345 6789"' : (f.type === 'email' ? ' placeholder="name@example.com"' : '');
+    var hint = f.type === 'tel' ? '<div class="hint">Include your country code, e.g. +60.</div>' : (f.type === 'name' ? '<div class="hint">Letters only, as per your IC/Passport.</div>' : '');
+    return '<label for="f_'+f.id+'">'+esc(f.label)+reqStar+'</label><input type="'+type+'" id="f_'+f.id+'" data-field="'+f.id+'"'+placeholder+'>'+hint+'<div class="err-msg">Please fill this in correctly.</div>';
+  }
+
+  function renderSign(){
+    main.classList.remove('wide');
+    var cfg = state.config;
+    var groups = groupBySection(cfg.fields || []);
+    var groupsHtml = groups.map(function(g){
+      var fieldsHtml = g.fields.map(function(f){
+        return '<div class="field" data-field-wrap="'+f.id+'">'+fieldInputHtml(f)+'</div>';
+      }).join('');
+      var heading = g.section ? '<div class="section-heading">'+esc(g.section)+'</div>' : '';
+      return heading + '<div class="card">' + fieldsHtml + '</div>';
+    }).join('');
+
+    var acks = (cfg.acknowledgements || []).map(function(a, i){
+      return '<label class="ack-item"><input type="checkbox" data-ack="'+i+'"><span>'+esc(a)+'</span></label>';
+    }).join('');
+
+    app.innerHTML =
+      '<div class="eyebrow">Crew Registration</div><h1 class="page-title">Join the event</h1>' +
+      '<p class="lede">Fill in your details, review the crew agreement, and sign at the bottom.</p>' +
+      groupsHtml +
+      '<div class="section-heading">Event Crew Agreement</div>' +
+      '<div class="card">' +
+        '<p class="sub" style="margin-bottom:14px;">'+esc(cfg.agreementIntro || 'Please review the agreement below before signing.')+'</p>' +
+        '<div class="agreement-box" id="agreementBox"><div class="agreement-loading">Loading agreement…</div></div>' +
+        '<div class="ack-list">'+acks+'</div>' +
+        '<div class="err-msg" id="ackErr" style="display:none;">Please confirm every statement above.</div>' +
+        '<div class="sign-meta">' +
+          '<div class="mini"><label style="margin-bottom:4px;">Full Name</label><div class="val" id="metaName">—</div></div>' +
+          '<div class="mini"><label style="margin-bottom:4px;">Date</label><div class="val" id="metaDate">—</div></div>' +
+        '</div>' +
+        '<div class="sig-head"><label style="margin-bottom:0;">Your signature <span class="req">*</span></label><button class="clear-btn" id="clearBtn" type="button">Clear</button></div>' +
+        '<div class="sig-wrap"><canvas class="pad" id="pad"></canvas><div class="sig-baseline"></div><div class="sig-hint" id="sigHint">sign here</div></div>' +
+        '<div class="err-msg" id="sigErr" style="display:none;">Please sign above before submitting.</div>' +
+      '</div>' +
+      '<button class="primary" id="submitBtn">Submit &amp; sign</button>' +
+      '<div class="status" id="status"></div>';
+
+    wireSignForm();
+    renderAgreementPdf();
+  }
+
+  function renderAgreementPdf(){
+    var box = document.getElementById('agreementBox');
+    if (!window.pdfjsLib) { box.innerHTML = '<div class="agreement-loading">Could not load the PDF viewer.</div>'; return; }
+    pdfjsLib.getDocument(AGREEMENT_PDF_URL).promise.then(function(pdf){
+      box.innerHTML = '';
+      var renderPage = function(n){
+        if (n > pdf.numPages) return;
+        pdf.getPage(n).then(function(page){
+          var scale = 1.3;
+          var viewport = page.getViewport({ scale: scale });
+          var canvas = document.createElement('canvas');
+          canvas.width = viewport.width; canvas.height = viewport.height;
+          box.appendChild(canvas);
+          page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise.then(function(){
+            renderPage(n + 1);
+          });
+        });
+      };
+      renderPage(1);
+    }).catch(function(){
+      box.innerHTML = '<div class="agreement-loading">Couldn\'t load the agreement PDF. Make sure crew-agreement.pdf was uploaded alongside this page.</div>';
+    });
+  }
+
+  function wireSignForm(){
+    var cfg = state.config;
+
+    // Other: pills toggle their follow-up text input
+    document.querySelectorAll('[data-pill]').forEach(function(pill){
+      var input = pill.querySelector('input');
+      input.addEventListener('change', function(){
+        var wrap = pill.closest('[data-field-wrap]');
+        if (input.type === 'checkbox') pill.classList.toggle('checked', input.checked);
+        else wrap.querySelectorAll('.check-pill').forEach(function(p){ p.classList.toggle('checked', p === pill && input.checked); });
+        var otherInput = wrap.querySelector('.other-input');
+        if (otherInput){
+          var anyOther = Array.prototype.some.call(wrap.querySelectorAll('input[type="checkbox"],input[type="radio"]'), function(el){
+            return el.checked && el.value.trim().toLowerCase() === 'other';
+          });
+          otherInput.classList.toggle('show', anyOther);
+        }
+      });
+    });
+
+    // File inputs
+    document.querySelectorAll('input[type="file"][data-field]').forEach(function(input){
+      input.addEventListener('change', function(){
+        var f = input.files[0];
+        var preview = document.getElementById('preview_' + input.dataset.field);
+        if (!f){ preview.style.display = 'none'; return; }
+        if (f.size > MAX_FILE_MB * 1024 * 1024){
+          showFieldError(input.dataset.field, 'That file is over ' + MAX_FILE_MB + 'MB — please choose a smaller one.');
+          input.value = '';
+          preview.style.display = 'none';
+          return;
+        }
+        clearFieldError(input.dataset.field);
+        preview.style.display = 'flex';
+        preview.innerHTML = '<span>' + esc(f.name) + '</span> <button type="button" class="file-remove" data-remove="' + input.dataset.field + '">Remove</button>';
+      });
+    });
+    document.getElementById('app').addEventListener('click', function(e){
+      var btn = e.target.closest('[data-remove]');
+      if (!btn) return;
+      var id = btn.dataset.remove;
+      document.getElementById('f_' + id).value = '';
+      document.getElementById('preview_' + id).style.display = 'none';
+    });
+
+    // Keep the agreement's Name/Date preview in sync with the Full Name field.
+    var nameField = document.getElementById('f_fullName');
+    var metaName = document.getElementById('metaName');
+    var metaDate = document.getElementById('metaDate');
+    var todayStr = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    metaDate.textContent = todayStr;
+    if (nameField){
+      var syncName = function(){ metaName.textContent = nameField.value.trim() || '—'; };
+      nameField.addEventListener('input', syncName);
+      syncName();
+    }
+
+    // Signature pad
+    var canvas = document.getElementById('pad');
+    var ctx = canvas.getContext('2d');
+    var hint = document.getElementById('sigHint');
+    var clearBtn = document.getElementById('clearBtn');
+    var hasSignature = false, drawing = false, lastX = 0, lastY = 0;
+
+    function sizeCanvas(){
+      var rect = canvas.getBoundingClientRect();
+      var dpr = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.lineWidth = 2.4; ctx.strokeStyle = '#111';
+    }
+    sizeCanvas();
+    window.addEventListener('resize', function(){ if (!hasSignature) sizeCanvas(); });
+
+    function pos(e){ var r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    canvas.addEventListener('pointerdown', function(e){
+      drawing = true; canvas.setPointerCapture(e.pointerId);
+      var p = pos(e); lastX = p.x; lastY = p.y;
+      if (!hasSignature){ hasSignature = true; hint.style.opacity = '0'; }
+      ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(lastX+0.1, lastY+0.1); ctx.stroke();
+    });
+    canvas.addEventListener('pointermove', function(e){
+      if (!drawing) return;
+      var p = pos(e);
+      ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke();
+      lastX = p.x; lastY = p.y;
+    });
+    function stop(e){ if (!drawing) return; drawing = false; try{ canvas.releasePointerCapture(e.pointerId); }catch(err){} }
+    canvas.addEventListener('pointerup', stop);
+    canvas.addEventListener('pointercancel', stop);
+    canvas.addEventListener('pointerleave', stop);
+    clearBtn.addEventListener('click', function(){ sizeCanvas(); hasSignature = false; hint.style.opacity = '1'; });
+
+    var statusEl = document.getElementById('status');
+    function showStatus(kind, msg){ statusEl.className = 'status show ' + kind; statusEl.textContent = msg; }
+
+    document.getElementById('submitBtn').addEventListener('click', function(){
+      handleSubmit(cfg, canvas, function(){ return hasSignature; }, showStatus);
+    });
+  }
+
+  function showFieldError(id, msg){
+    var wrap = document.querySelector('[data-field-wrap="'+id+'"]');
+    if (!wrap) return;
+    wrap.classList.add('invalid');
+    var em = wrap.querySelector('.err-msg');
+    if (em && msg) em.textContent = msg;
+  }
+  function clearFieldError(id){
+    var wrap = document.querySelector('[data-field-wrap="'+id+'"]');
+    if (wrap) wrap.classList.remove('invalid');
+  }
+
+  var VALIDATORS = {
+    name: function(v){ return /^[A-Za-zÀ-ɏ' -]+$/.test(v.trim()); },
+    email: function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); },
+    tel: function(v){ return /^\+[1-9]\d{6,14}$/.test(v.replace(/[\s()-]/g, '')); }
+  };
+
+  function collectFieldValue(f){
+    if (f.type === 'ranking_grid'){
+      var val = {}, complete = true;
+      (f.rows||[]).forEach(function(row, ri){
+        var checked = document.querySelector('input[name="grid_'+f.id+'_'+ri+'"]:checked');
+        if (checked) val[row] = checked.value; else complete = false;
+      });
+      return { value: val, ok: !f.required || complete };
+    }
+    if (f.type === 'multiselect'){
+      var vals = Array.prototype.slice.call(document.querySelectorAll('[data-multi="'+f.id+'"]:checked')).map(function(c){ return c.value; });
+      var otherEl = document.getElementById('f_'+f.id+'_other');
+      if (otherEl && vals.indexOf('Other') !== -1){
+        vals = vals.map(function(v){ return v === 'Other' ? ('Other: ' + otherEl.value.trim()) : v; });
+      }
+      return { value: vals, ok: !f.required || vals.length > 0 };
+    }
+    if (f.type === 'radio'){
+      var checkedR = document.querySelector('input[data-radio="'+f.id+'"]:checked');
+      var v = checkedR ? checkedR.value : '';
+      var otherElR = document.getElementById('f_'+f.id+'_other');
+      if (v === 'Other' && otherElR) v = 'Other: ' + otherElR.value.trim();
+      return { value: v, ok: !f.required || !!checkedR };
+    }
+    if (f.type === 'select'){
+      var sel = document.getElementById('f_'+f.id);
+      var sv = sel.value;
+      var otherElS = document.getElementById('f_'+f.id+'_other');
+      if (sv === 'Other' && otherElS) sv = 'Other: ' + otherElS.value.trim();
+      return { value: sv, ok: !f.required || !!sel.value };
+    }
+    if (f.type === 'file'){
+      var fileEl = document.getElementById('f_'+f.id);
+      var file = fileEl.files[0];
+      return { value: file || null, ok: !f.required || !!file };
+    }
+    var el = document.getElementById('f_'+f.id);
+    var tv = el.value.trim();
+    var okFmt = true;
+    if (tv && VALIDATORS[f.type]) okFmt = VALIDATORS[f.type](tv);
+    return { value: tv, ok: (!f.required || !!tv) && okFmt };
+  }
+
+  function handleSubmit(cfg, canvas, hasSignatureFn, showStatus){
+    var data = {}, filePromises = [], valid = true;
+
+    (cfg.fields || []).forEach(function(f){
+      var res = collectFieldValue(f);
+      if (!res.ok){ showFieldError(f.id); valid = false; } else { clearFieldError(f.id); }
+      if (f.type === 'file' && res.value){
+        filePromises.push(compressIfImage(res.value).then(function(dataUrl){ data[f.id] = dataUrl; }));
+      } else if (f.type !== 'file') {
+        data[f.id] = res.value;
+      } else {
+        data[f.id] = '';
+      }
+    });
+
+    var acks = document.querySelectorAll('[data-ack]');
+    var allAcked = Array.prototype.every.call(acks, function(a){ return a.checked; });
+    document.getElementById('ackErr').style.display = allAcked ? 'none' : 'block';
+    if (!allAcked) valid = false;
+
+    var sigOk = hasSignatureFn();
+    document.getElementById('sigErr').style.display = sigOk ? 'none' : 'block';
+    if (!sigOk) valid = false;
+
+    if (!valid){
+      showStatus('err', 'Please fix the highlighted fields above.');
+      return;
+    }
+
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    Promise.all(filePromises).then(function(){
+      return buildSignedAgreementPdf(canvas, (data.fullName || ''), document.getElementById('metaDate').textContent);
+    }).then(function(signedPdfDataUrl){
+      return apiPost({ action: 'submit', data: data, signedAgreementPdf: signedPdfDataUrl });
+    }).then(function(res){
+      if (res && res.ok){
+        app.innerHTML = '<div class="card success-panel"><div class="mark">✓</div><h2 style="font-size:20px;">You\'re all set</h2><p class="sub" style="margin-top:8px;">Thanks — your details and signed agreement have been recorded. See you at the event!</p></div>';
+      } else {
+        showStatus('err', "Couldn't submit — please try again.");
+        btn.disabled = false; btn.textContent = 'Submit & sign';
+      }
+    }).catch(function(err){
+      showStatus('err', "Couldn't submit — " + (err && err.message ? err.message : 'please check your connection and try again.'));
+      btn.disabled = false; btn.textContent = 'Submit & sign';
+    });
+  }
+
+  function buildSignedAgreementPdf(signatureCanvas, fullName, dateStr){
+    return fetch(AGREEMENT_PDF_URL).then(function(r){ return r.arrayBuffer(); }).then(function(bytes){
+      return PDFLib.PDFDocument.load(bytes);
+    }).then(function(pdfDoc){
+      return pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica).then(function(font){
+        var sigPngBytes = dataUrlToUint8(signatureCanvas.toDataURL('image/png'));
+        return pdfDoc.embedPng(sigPngBytes).then(function(sigImage){
+          var pages = pdfDoc.getPages();
+          var page = pages[pages.length - 1];
+          var P = SIG_PLACEMENT;
+          page.drawImage(sigImage, { x: P.signature.x, y: P.signature.y, width: P.signature.width, height: P.signature.height });
+          page.drawText(fullName || '', { x: P.fullName.x, y: P.fullName.y, size: P.fullName.size, font: font, color: PDFLib.rgb(0.03,0.07,0.15) });
+          page.drawText(dateStr || '', { x: P.date.x, y: P.date.y, size: P.date.size, font: font, color: PDFLib.rgb(0.03,0.07,0.15) });
+          return pdfDoc.save();
+        });
+      });
+    }).then(function(finalBytes){
+      return 'data:application/pdf;base64,' + uint8ToBase64(finalBytes);
+    });
+  }
+
+  function dataUrlToUint8(dataUrl){
+    var base64 = dataUrl.split(',')[1];
+    var binary = atob(base64);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  }
+  function uint8ToBase64(bytes){
+    var binary = '';
+    var chunk = 0x8000;
+    for (var i = 0; i < bytes.length; i += chunk){
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+
+  // ================= DATA VIEW =================
+  function renderAdminGate(onOk){
+    app.innerHTML =
+      '<div class="gate"><div class="eyebrow">Admin</div><h1 class="page-title" style="font-size:22px;">Enter admin key</h1>' +
+      '<p class="lede">This matches the ADMIN_KEY set in your Apps Script.</p>' +
+      '<input type="text" id="gateKey" placeholder="Admin key">' +
+      '<button class="primary" id="gateBtn" style="margin-top:4px;">Continue</button>' +
+      '<div class="status" id="gateStatus"></div></div>';
+    document.getElementById('gateKey').value = getAdminKey();
+    document.getElementById('gateBtn').addEventListener('click', function(){
+      setAdminKey(document.getElementById('gateKey').value.trim());
+      onOk();
+    });
+  }
+
+  function renderData(){
+    main.classList.add('wide');
+    var key = getAdminKey();
+    if (!key){ renderAdminGate(renderData); return; }
+    app.innerHTML = '<div class="eyebrow">Admin</div><h1 class="page-title">Crew data</h1><p class="lede">Loading submissions…</p>';
+    api({ action: 'list', key: key }).then(function(res){
+      if (res && res.error === 'unauthorized'){
+        setAdminKey('');
+        renderAdminGate(renderData);
+        setTimeout(function(){
+          var st = document.getElementById('gateStatus');
+          if (st){ st.className = 'status show err'; st.textContent = 'Wrong key — try again.'; }
+        }, 0);
+        return;
+      }
+      state.rows = (res && res.rows) || [];
+      drawDataTable();
+    }).catch(function(){
+      app.innerHTML = '<div class="card"><p class="sub">Couldn\'t load data. Check your connection and try again.</p></div>';
+    });
+  }
+
+  function looksLikeUrl(v){ return typeof v === 'string' && /^https?:\/\//.test(v); }
+
+  function drawDataTable(filterText){
+    var cfg = state.config;
+    var cols = (cfg.fields||[]).filter(function(f){ return f.type !== 'file' && f.type !== 'ranking_grid'; }).slice(0, 7);
+    var rows = state.rows || [];
+    var ft = (filterText||'').toLowerCase();
+    var filtered = !ft ? rows : rows.filter(function(r){ return JSON.stringify(r.data).toLowerCase().indexOf(ft) !== -1; });
+
+    var head = '<tr><th>Submitted</th>' + cols.map(function(c){ return '<th>'+esc(c.label)+'</th>'; }).join('') + '<th>Signed Agreement</th></tr>';
+    var body = filtered.map(function(r){
+      var when = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
+      var cells = cols.map(function(c){
+        var v = r.data ? r.data[c.id] : '';
+        if (Array.isArray(v)) v = v.join(', ');
+        if (looksLikeUrl(v)) v = 'View';
+        return '<td' + (c.id === 'fullName' ? ' class="name"' : '') + '>' + esc(v) + '</td>';
+      }).join('');
+      var sig = r.signedAgreementUrl ? '<a href="'+esc(r.signedAgreementUrl)+'" target="_blank" rel="noopener">View</a>' : '—';
+      return '<tr>' + '<td>'+esc(when)+'</td>' + cells + '<td>'+sig+'</td>' + '</tr>';
+    }).join('');
+
+    var tableHtml = filtered.length
+      ? '<div class="table-wrap"><table><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'
+      : '<div class="table-wrap"><div class="empty-note">No submissions yet.</div></div>';
+
+    app.innerHTML =
+      '<div class="eyebrow">Admin</div><h1 class="page-title">Crew data</h1>' +
+      '<p class="lede">Every crew member who has signed up and signed the agreement.</p>' +
+      '<div class="toolbar">' +
+        '<input type="text" id="filterInput" placeholder="Search name, project, role…">' +
+        '<span class="count-pill">'+filtered.length+' of '+rows.length+'</span>' +
+        '<button class="ghost small" id="refreshBtn">Refresh</button>' +
+        (SHEET_URL ? '<a class="ghost small" href="'+esc(SHEET_URL)+'" target="_blank" rel="noopener" style="text-decoration:none;">Open Sheet ↗</a>' : '') +
+      '</div>' + tableHtml;
+
+    document.getElementById('filterInput').value = filterText || '';
+    document.getElementById('filterInput').addEventListener('input', function(e){ drawDataTable(e.target.value); });
+    document.getElementById('refreshBtn').addEventListener('click', function(){ renderData(); });
+  }
+
+  // ================= EDIT VIEW =================
+  var TYPE_OPTIONS = [
+    ['text','Short text'], ['name','Name (letters only)'], ['tel','Phone (with country code)'], ['email','Email'],
+    ['textarea','Long text'], ['select','Dropdown (one choice)'], ['radio','Radio buttons (one choice)'],
+    ['multiselect','Checkboxes (multiple)'], ['file','File upload'], ['ranking_grid','Ranking grid']
+  ];
+
+  function renderEdit(){
+    main.classList.remove('wide');
+    var key = getAdminKey();
+    if (!key){ renderAdminGate(renderEdit); return; }
+    drawEdit(JSON.parse(JSON.stringify(state.config)));
+  }
+
+  function slugify(label, existing){
+    var base = String(label).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'field';
+    var id = base, n = 1;
+    while (existing.indexOf(id) !== -1){ id = base + '_' + (++n); }
+    return id;
+  }
+
+  function drawEdit(cfg){
+    if (!cfg.acknowledgements) cfg.acknowledgements = [];
+    var fieldsHtml = cfg.fields.map(function(f, i){
+      var typeOpts = TYPE_OPTIONS.map(function(t){
+        return '<option value="'+t[0]+'"'+(f.type===t[0]?' selected':'')+'>'+t[1]+'</option>';
+      }).join('');
+      var showOptions = (f.type === 'select' || f.type === 'radio' || f.type === 'multiselect');
+      var showGrid = (f.type === 'ranking_grid');
+      return '' +
+        '<div class="field-card" data-idx="'+i+'">' +
+          '<div class="field-card-row">' +
+            '<div><label>Label</label><input type="text" data-edit="label" value="'+esc(f.label)+'"></div>' +
+            '<div><label>Type</label><select data-edit="type">'+typeOpts+'</select></div>' +
+          '</div>' +
+          '<div class="field-card-row"><div><label>Section</label><input type="text" data-edit="section" value="'+esc(f.section||'')+'" placeholder="e.g. Personal Information"></div></div>' +
+          '<div class="field-card-row" data-opts-row style="'+(showOptions?'':'display:none;')+'">' +
+            '<div><label>Options (comma separated — use "Other" to add a specify-box)</label><input type="text" data-edit="options" value="'+esc((f.options||[]).join(', '))+'"></div>' +
+          '</div>' +
+          '<div class="field-card-row" data-grid-row style="'+(showGrid?'':'display:none;')+'">' +
+            '<div><label>Rows (comma separated)</label><input type="text" data-edit="rows" value="'+esc((f.rows||[]).join(', '))+'"></div>' +
+            '<div><label>Columns (comma separated)</label><input type="text" data-edit="columns" value="'+esc((f.columns||[]).join(', '))+'"></div>' +
+          '</div>' +
+          '<div class="field-card-actions">' +
+            '<label class="req-toggle"><input type="checkbox" data-edit="required" '+(f.required?'checked':'')+'> Required</label>' +
+            '<div class="left">' +
+              '<button class="ghost small" data-act="up" type="button">↑</button>' +
+              '<button class="ghost small" data-act="down" type="button">↓</button>' +
+              '<button class="ghost small danger-ghost" data-act="remove" type="button">Remove</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+
+    var ackHtml = cfg.acknowledgements.map(function(a, i){
+      return '<div class="ack-edit-row"><textarea data-ack-idx="'+i+'">'+esc(a)+'</textarea><button class="ghost small danger-ghost" data-act="remove-ack" data-idx="'+i+'" type="button">✕</button></div>';
+    }).join('');
+
+    app.innerHTML =
+      '<div class="eyebrow">Admin</div><h1 class="page-title">Edit the form</h1>' +
+      '<p class="lede">Changes apply the next time someone opens the Sign tab.</p>' +
+      '<div class="card"><h2>Crew questions</h2><p class="sub">What every crew member fills in before signing. Give two fields the same Section name to group them under one heading.</p>' +
+        '<div id="fieldList">' + fieldsHtml + '</div>' +
+        '<button class="ghost" id="addFieldBtn" type="button" style="margin-top:6px;">+ Add question</button>' +
+      '</div>' +
+      '<div class="card"><h2>Event Crew Agreement</h2><p class="sub">Shown above the signature pad, along with the agreement PDF.</p>' +
+        '<label>Intro text</label><textarea id="agreementIntro" style="min-height:60px;">'+esc(cfg.agreementIntro||'')+'</textarea>' +
+        '<label style="margin-top:14px;">Acknowledgement checkboxes (all must be ticked to submit)</label>' +
+        '<div id="ackList">'+ackHtml+'</div>' +
+        '<button class="ghost small" id="addAckBtn" type="button" style="margin-top:4px;">+ Add statement</button>' +
+        '<p class="hint" style="margin-top:10px;">To change the agreement PDF itself, replace crew-agreement.pdf in your hosting and update the signature coordinates in the page\'s script if the layout moved.</p>' +
+      '</div>' +
+      '<button class="primary" id="saveConfigBtn">Save changes</button>' +
+      '<div class="status" id="editStatus"></div>';
+
+    function readCfgFromDom(){
+      var cards = document.querySelectorAll('.field-card');
+      var ids = cfg.fields.map(function(f){ return f.id; });
+      var fields = Array.prototype.map.call(cards, function(card, i){
+        var orig = cfg.fields[i] || {};
+        var label = card.querySelector('[data-edit="label"]').value.trim() || 'Untitled question';
+        var type = card.querySelector('[data-edit="type"]').value;
+        var section = card.querySelector('[data-edit="section"]').value.trim();
+        var required = card.querySelector('[data-edit="required"]').checked;
+        var id = orig.id || slugify(label, ids);
+        var f = { id: id, label: label, type: type, required: required };
+        if (section) f.section = section;
+        if (type === 'select' || type === 'radio' || type === 'multiselect'){
+          var optsRaw = card.querySelector('[data-edit="options"]').value;
+          f.options = optsRaw.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+        }
+        if (type === 'ranking_grid'){
+          f.rows = card.querySelector('[data-edit="rows"]').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+          f.columns = card.querySelector('[data-edit="columns"]').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+        }
+        return f;
+      });
+      var acknowledgements = Array.prototype.map.call(document.querySelectorAll('[data-ack-idx]'), function(t){ return t.value.trim(); }).filter(Boolean);
+      return { fields: fields, agreementIntro: document.getElementById('agreementIntro').value, acknowledgements: acknowledgements };
+    }
+
+    document.getElementById('fieldList').addEventListener('change', function(e){
+      if (e.target.dataset.edit === 'type'){
+        var card = e.target.closest('.field-card');
+        var row = card.querySelector('[data-opts-row]');
+        var gridRow = card.querySelector('[data-grid-row]');
+        var t = e.target.value;
+        row.style.display = (t === 'select' || t === 'radio' || t === 'multiselect') ? '' : 'none';
+        gridRow.style.display = (t === 'ranking_grid') ? '' : 'none';
+      }
+    });
+
+    document.getElementById('fieldList').addEventListener('click', function(e){
+      var btn = e.target.closest('button[data-act]');
+      if (!btn) return;
+      cfg = readCfgFromDom();
+      var idx = Array.prototype.indexOf.call(document.querySelectorAll('.field-card'), btn.closest('.field-card'));
+      if (btn.dataset.act === 'remove'){ cfg.fields.splice(idx, 1); }
+      if (btn.dataset.act === 'up' && idx > 0){ var tmp = cfg.fields[idx-1]; cfg.fields[idx-1] = cfg.fields[idx]; cfg.fields[idx] = tmp; }
+      if (btn.dataset.act === 'down' && idx < cfg.fields.length - 1){ var tmp2 = cfg.fields[idx+1]; cfg.fields[idx+1] = cfg.fields[idx]; cfg.fields[idx] = tmp2; }
+      drawEdit(cfg);
+    });
+
+    document.getElementById('addFieldBtn').addEventListener('click', function(){
+      cfg = readCfgFromDom();
+      cfg.fields.push({ id: slugify('New question ' + (cfg.fields.length+1), cfg.fields.map(function(f){return f.id;})), label: 'New question', type: 'text', required: false });
+      drawEdit(cfg);
+    });
+
+    document.getElementById('ackList').addEventListener('click', function(e){
+      var btn = e.target.closest('[data-act="remove-ack"]');
+      if (!btn) return;
+      cfg = readCfgFromDom();
+      cfg.acknowledgements.splice(Number(btn.dataset.idx), 1);
+      drawEdit(cfg);
+    });
+    document.getElementById('addAckBtn').addEventListener('click', function(){
+      cfg = readCfgFromDom();
+      cfg.acknowledgements.push('');
+      drawEdit(cfg);
+    });
+
+    document.getElementById('saveConfigBtn').addEventListener('click', function(){
+      var newCfg = readCfgFromDom();
+      var btn = document.getElementById('saveConfigBtn');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      apiPost({ action: 'saveConfig', key: getAdminKey(), config: newCfg }).then(function(res){
+        var st = document.getElementById('editStatus');
+        if (res && res.ok){
+          state.config = newCfg;
+          st.className = 'status show ok'; st.textContent = 'Saved. Crew members will see these changes next time they open the Sign tab.';
+        } else {
+          st.className = 'status show err'; st.textContent = res && res.error === 'unauthorized' ? 'Wrong admin key.' : "Couldn't save — please try again.";
+        }
+        btn.disabled = false; btn.textContent = 'Save changes';
+      }).catch(function(){
+        var st = document.getElementById('editStatus');
+        st.className = 'status show err'; st.textContent = "Couldn't reach the server.";
+        btn.disabled = false; btn.textContent = 'Save changes';
+      });
+    });
+  }
+
+  // ================= ROUTER =================
+  function render(){
+    if (!state.config){ app.innerHTML = '<p class="lede" style="margin-top:40px;text-align:center;">Loading…</p>'; return; }
+    if (state.tab === 'sign') renderSign();
+    else if (state.tab === 'data') renderData();
+    else if (state.tab === 'edit') renderEdit();
+  }
+
+  loadConfig().then(render).catch(function(){
+    app.innerHTML = '<div class="card"><h2>Couldn\'t load the form</h2><p class="sub">Please check your connection and reload the page.</p></div>';
+  });
+})();
+</script>
+</body>
+</html>
