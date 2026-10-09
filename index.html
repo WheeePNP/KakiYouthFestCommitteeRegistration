@@ -743,7 +743,7 @@
       var showOptions = (f.type === 'select' || f.type === 'radio' || f.type === 'multiselect');
       var showGrid = (f.type === 'ranking_grid');
       return '' +
-        '<div class="field-card" data-idx="'+i+'">' +
+        '<div class="field-card" data-idx="'+i+'" data-field-id="'+esc(f.id)+'">' +
           '<div class="field-card-row">' +
             '<div><label>Label</label><input type="text" data-edit="label" value="'+esc(f.label)+'"></div>' +
             '<div><label>Type</label><select data-edit="type">'+typeOpts+'</select></div>' +
@@ -771,12 +771,24 @@
       return '<div class="ack-edit-row"><textarea data-ack-idx="'+i+'">'+esc(a)+'</textarea><button class="ghost small danger-ghost" data-act="remove-ack" data-idx="'+i+'" type="button">✕</button></div>';
     }).join('');
 
+    var deptField = cfg.fields.filter(function(f){ return f.id === 'chosenDepartment'; })[0];
+    var deptNames = (deptField && deptField.options || []).filter(function(d){ return d && d.toLowerCase() !== 'other'; });
+    if (!cfg.departmentCapacity) cfg.departmentCapacity = {};
+    var capacityHtml = deptNames.length ? deptNames.map(function(d){
+      var cur = cfg.departmentCapacity[d];
+      return '<div class="field-card-row"><div><label>'+esc(d)+'</label>' +
+        '<input type="number" min="0" step="1" data-cap-dept="'+esc(d)+'" value="'+(cur != null && cur !== '' ? esc(String(cur)) : '')+'" placeholder="Unlimited"></div></div>';
+    }).join('') : '<p class="sub">Add department options to the "Chosen Department" question below first.</p>';
+
     app.innerHTML =
       '<div class="eyebrow">Admin</div><h1 class="page-title">Edit the form</h1>' +
       '<p class="lede">Changes apply the next time someone opens the Sign tab.</p>' +
       '<div class="card"><h2>Crew questions</h2><p class="sub">What every crew member fills in before signing. Give two fields the same Section name to group them under one heading.</p>' +
         '<div id="fieldList">' + fieldsHtml + '</div>' +
         '<button class="ghost" id="addFieldBtn" type="button" style="margin-top:6px;">+ Add question</button>' +
+      '</div>' +
+      '<div class="card"><h2>Department capacity</h2><p class="sub">Max spots per department. Leave blank for unlimited. Department names come from the "Chosen Department" question\'s options.</p>' +
+        '<div id="capacityList">' + capacityHtml + '</div>' +
       '</div>' +
       '<div class="card"><h2>Event Crew Agreement</h2><p class="sub">Shown above the signature pad, along with the agreement PDF.</p>' +
         '<label>Intro text</label><textarea id="agreementIntro" style="min-height:60px;">'+esc(cfg.agreementIntro||'')+'</textarea>' +
@@ -811,7 +823,13 @@
         return f;
       });
       var acknowledgements = Array.prototype.map.call(document.querySelectorAll('[data-ack-idx]'), function(t){ return t.value.trim(); }).filter(Boolean);
-      return { fields: fields, agreementIntro: document.getElementById('agreementIntro').value, acknowledgements: acknowledgements };
+      var departmentCapacity = {};
+      Array.prototype.forEach.call(document.querySelectorAll('[data-cap-dept]'), function(inp){
+        var dept = inp.dataset.capDept;
+        var v = inp.value.trim();
+        if (v !== '') departmentCapacity[dept] = Number(v);
+      });
+      return { fields: fields, agreementIntro: document.getElementById('agreementIntro').value, acknowledgements: acknowledgements, departmentCapacity: departmentCapacity };
     }
 
     document.getElementById('fieldList').addEventListener('change', function(e){
@@ -824,6 +842,15 @@
         gridRow.style.display = (t === 'ranking_grid') ? '' : 'none';
       }
     });
+
+    // Re-render so the Department capacity list picks up renamed/added/removed departments.
+    document.getElementById('fieldList').addEventListener('blur', function(e){
+      if (e.target.dataset.edit !== 'options') return;
+      var card = e.target.closest('.field-card');
+      if (!card || card.dataset.fieldId !== 'chosenDepartment') return;
+      cfg = readCfgFromDom();
+      drawEdit(cfg);
+    }, true);
 
     document.getElementById('fieldList').addEventListener('click', function(e){
       var btn = e.target.closest('button[data-act]');
