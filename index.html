@@ -62,6 +62,10 @@
   .check-pill{display:flex; align-items:center; gap:6px; border:1.5px solid var(--line); border-radius:20px; padding:7px 13px; font-size:13.5px; cursor:pointer; user-select:none;}
   .check-pill input{accent-color:var(--maroon);}
   .check-pill.checked{border-color:var(--maroon); background:color-mix(in srgb, var(--maroon) 10%, var(--panel));}
+  .check-pill.full{opacity:.5; cursor:not-allowed;}
+  .check-pill.full input{cursor:not-allowed;}
+  .slot-tag{font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; background:var(--panel-2); color:var(--muted);}
+  .slot-tag.full{background:color-mix(in srgb, var(--danger) 14%, var(--panel-2)); color:var(--danger);}
   .err-msg{font-size:12.5px; color:var(--danger); margin-top:6px; display:none;}
   .field.invalid .err-msg{display:block;}
   .field.invalid input, .field.invalid select, .field.invalid textarea{border-color:var(--danger);}
@@ -190,7 +194,7 @@
   var app = document.getElementById('app');
   var main = document.querySelector('main');
   var tabButtons = document.querySelectorAll('nav.tabs button');
-  var state = { tab: 'sign', config: null, rows: null };
+  var state = { tab: 'sign', config: null, rows: null, deptCounts: { counts: {}, capacity: {} } };
 
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -217,7 +221,20 @@
   }
   tabButtons.forEach(function(b){ b.addEventListener('click', function(){ switchTab(b.dataset.tab); }); });
 
-  function loadConfig(){ return api({ action: 'config' }).then(function(cfg){ state.config = cfg; }); }
+  function loadConfig(){
+    return Promise.all([
+      api({ action: 'config' }),
+      api({ action: 'deptCounts' }).catch(function(){ return { counts: {}, capacity: {} }; })
+    ]).then(function(res){
+      state.config = res[0];
+      state.deptCounts = res[1] && res[1].counts ? res[1] : { counts: {}, capacity: {} };
+    });
+  }
+  function loadDeptCounts(){
+    return api({ action: 'deptCounts' }).then(function(res){
+      if (res && res.counts) state.deptCounts = res;
+    }).catch(function(){});
+  }
 
   // ================= FILE HELPERS =================
   function readFileAsDataUrl(file){
@@ -288,11 +305,22 @@
     }
 
     if (f.type === 'radio'){
+      var deptCap = (f.id === 'chosenDepartment') ? (state.deptCounts.capacity || {}) : null;
+      var deptCounts = (f.id === 'chosenDepartment') ? (state.deptCounts.counts || {}) : null;
       var pills = (f.options||[]).map(function(o){
-        return '<label class="check-pill" data-pill><input type="radio" name="r_'+f.id+'" value="'+esc(o)+'" data-radio="'+f.id+'"> '+esc(o)+'</label>';
+        var full = false, tag = '';
+        if (deptCap){
+          var cap = deptCap[o];
+          if (cap || cap === 0){
+            var remaining = cap - (deptCounts[o] || 0);
+            full = remaining <= 0;
+            tag = full ? '<span class="slot-tag full">Full</span>' : '<span class="slot-tag">'+remaining+' left</span>';
+          }
+        }
+        return '<label class="check-pill'+(full?' full':'')+'" data-pill data-dept-pill="'+esc(o)+'"><input type="radio" name="r_'+f.id+'" value="'+esc(o)+'" data-radio="'+f.id+'"'+(full?' disabled':'')+'> '+esc(o)+tag+'</label>';
       }).join('');
       var otherR = hasOther(f) ? '<input type="text" class="other-input" id="f_'+f.id+'_other" placeholder="Please specify">' : '';
-      return '<label>'+esc(f.label)+reqStar+'</label><div class="check-grid">'+pills+'</div>'+otherR+'<div class="err-msg">Please choose one option.</div>';
+      return '<label>'+esc(f.label)+reqStar+'</label><div class="check-grid" data-dept-grid="'+(f.id==='chosenDepartment'?'1':'')+'">'+pills+'</div>'+otherR+'<div class="err-msg">Please choose one option.</div>';
     }
 
     if (f.type === 'multiselect'){
@@ -500,6 +528,32 @@
     if (wrap) wrap.classList.remove('invalid');
   }
 
+  // Called when a submission is rejected because the chosen department just
+  // filled up (another submitter took the last spot first) — disables that
+  // option in the already-rendered form so the person can pick another one,
+  // without having to reload and lose everything else they filled in.
+  function markDepartmentFull(deptName){
+    if (!deptName) return;
+    var wrap = document.querySelector('[data-field-wrap="chosenDepartment"]');
+    if (!wrap) return;
+    var pill = wrap.querySelector('[data-dept-pill="' + CSS.escape(deptName) + '"]');
+    if (!pill) return;
+    var input = pill.querySelector('input');
+    if (input){ input.checked = false; input.disabled = true; }
+    pill.classList.remove('checked');
+    pill.classList.add('full');
+    if (!pill.querySelector('.slot-tag')){
+      var tag = document.createElement('span');
+      tag.className = 'slot-tag full';
+      tag.textContent = 'Full';
+      pill.appendChild(tag);
+    } else {
+      var existingTag = pill.querySelector('.slot-tag');
+      existingTag.className = 'slot-tag full';
+      existingTag.textContent = 'Full';
+    }
+  }
+
   var VALIDATORS = {
     name: function(v){ return /^[A-Za-zÀ-ɏ' -]+$/.test(v.trim()); },
     email: function(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); },
@@ -588,6 +642,11 @@
     }).then(function(res){
       if (res && res.ok){
         app.innerHTML = '<div class="card success-panel"><div class="mark">✓</div><h2 style="font-size:20px;">You\'re all set</h2><p class="sub" style="margin-top:8px;">Thanks — your details and signed agreement have been recorded. See you at the event!</p></div>';
+      } else if (res && res.error === 'department_full'){
+        markDepartmentFull(res.department || data.chosenDepartment);
+        showStatus('err', 'That department just filled up — please pick another one and submit again.');
+        btn.disabled = false; btn.textContent = 'Submit & sign';
+        loadDeptCounts();
       } else {
         showStatus('err', "Couldn't submit — please try again.");
         btn.disabled = false; btn.textContent = 'Submit & sign';
